@@ -55,7 +55,7 @@ const scraper = {
           if(elem.children[0].data){
             if(elem.children[0].data.split(' ').length>3){
               titles.push(elem.children[0].data);
-              links.push("https://www.drudgereport.com"+elem.attribs.href);
+              links.push(elem.attribs.href);
             }
           }else if(elem.children[0].children[0]){
             // if(counter==0){
@@ -65,7 +65,7 @@ const scraper = {
             //   titles[1]+=(elem.children[0].children[0].data);
             // }
             titles.push(elem.children[0].children[0].data);
-            links.push("https://www.drudgereport.com"+elem.attribs.href);
+            links.push(elem.attribs.href);
           }
         }
         resolve({links, titles});
@@ -74,7 +74,38 @@ const scraper = {
         reject(err);
       });    
     })
+  },
+
+  getZero(){
+    return new Promise((resolve, reject)=>{
+      launchPuppeteer()
+      .then(function(page) {        
+        return page.goto("https://www.zerohedge.com/").then(function() {
+          return page.content();
+        });
+      })
+      .then(function(html) {
+        let links = [];
+        let titles = [];
+        let counter = 0;
+        
+        for(let elem of Array.from($('.view-content .views-row article', html))){
+          if(elem.children[3]){
+            titles.push(elem.children[3].attribs.content);
+            links.push("https://www.zerohedge.com" + elem.attribs.about);
+          }
+          
+          
+        }
+        
+        resolve({links, titles});
+      })
+      .catch(function(err) {
+        reject(err);
+      });    
+    })
   }    
+
 }
 
 module.exports = scraper;

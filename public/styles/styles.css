@@ -2,3 +2,11 @@
 .link{
   margin-top: 20px;
 }
+
+a:visited {
+   color: purple; 
+}
+
+button{
+  margin-left: 30px;
+}
