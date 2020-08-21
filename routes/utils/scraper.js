@@ -5,7 +5,9 @@ const puppeteer = require('puppeteer');
 
 function launchPuppeteer(){
   return puppeteer
-  .launch()
+  .launch({
+    ignoreDefaultArgs: ['--disable-extensions']
+  })
   .then(function(browser) {
     console.log('creating page...');
     return browser.newPage();
