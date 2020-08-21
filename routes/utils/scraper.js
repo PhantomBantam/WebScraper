@@ -104,6 +104,33 @@ const scraper = {
         reject(err);
       });    
     })
+  },
+
+  getForex(){
+    return new Promise((resolve, reject)=>{
+      launchPuppeteer()
+      .then(function(page) {        
+        return page.goto("https://www.forexlive.com/").then(function() {
+          return page.content();
+        });
+      })
+      .then(function(html) {
+        let links = [];
+        let titles = [];
+                
+        for(let elem of Array.from($('article', html))){
+          if(elem.children[1].children[3].children[1].children[1].children[0]){
+            links.push(elem.children[1].children[3].children[1].children[1].attribs.href);
+            titles.push(elem.children[1].children[3].children[1].children[1].children[0].data);
+          }
+        }
+        
+        resolve({links, titles});
+      })
+      .catch(function(err) {
+        reject(err);
+      });    
+    })
   }    
 
 }

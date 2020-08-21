@@ -2,6 +2,7 @@ const socket = io();
 const redditBtn = document.getElementById('reddit-btn');
 const drudgeBtn = document.getElementById('drudge-btn');
 const zeroBtn = document.getElementById('zero-btn');
+const forexBtn = document.getElementById('forex-btn');
 const scrapeResults = document.getElementById('scrape-results');
 
 var fetching = false;
@@ -37,6 +38,16 @@ zeroBtn.addEventListener('click', (e)=>{
   if(!fetching){
     sendLoadingMsg();
     socket.emit('scrapeZero');
+    fetching = true;  
+  }else{
+    alert("I'm already fetching something!")
+  }
+});
+
+forexBtn.addEventListener('click', (e)=>{
+  if(!fetching){
+    sendLoadingMsg();
+    socket.emit('scrapeForex');
     fetching = true;  
   }else{
     alert("I'm already fetching something!")
