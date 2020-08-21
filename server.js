@@ -23,9 +23,7 @@ app.get('/', (req, res)=>{
   res.send('webscraper');
 });
 
-const users = require('./routes/users');
 const dashboard = require('./routes/dashboard');
-app.use('/users', users)
 app.use('/dashboard', dashboard)
 
 

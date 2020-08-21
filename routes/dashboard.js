@@ -3,7 +3,7 @@ const getInfoFromLink = require('./utils/scraper');
 const socketio = require('../socketio');
 
 const router = express.Router();
-const {getDrudge, getReddit, getZero, getForex } = require('./utils/scraper');
+const {getDrudge, getReddit, getZero, getForex, getStocks } = require('./utils/scraper');
 
 router.get('/', (req, res)=>{
   res.render('dashboard');
@@ -35,6 +35,12 @@ socketio.on('connection', async socket=>{
 
   socket.on('scrapeForex', async ()=>{
     let data = await getForex();
+
+    socket.emit('scrapeRes', {res:data});
+  });
+
+  socket.on('scrapeStock', async ({stock})=>{
+    let data = await getStocks(stock);
 
     socket.emit('scrapeRes', {res:data});
   });

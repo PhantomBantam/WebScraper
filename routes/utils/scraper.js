@@ -12,7 +12,6 @@ function launchPuppeteer(){
   })
 
 }
-
 const scraper = {
   getReddit(){
     return new Promise((resolve, reject)=>{
@@ -125,6 +124,35 @@ const scraper = {
           }
         }
         
+        resolve({links, titles});
+      })
+      .catch(function(err) {
+        reject(err);
+      });    
+    })
+  },
+
+  getStocks(stock){
+    return new Promise((resolve, reject)=>{
+      launchPuppeteer()
+      .then(function(page) {        
+        return page.goto("https://finance.yahoo.com/quote/" + stock).then(function() {
+          return page.content();
+        });
+      })
+      .then(function(html) {
+        let links = [];
+        let titles = [];
+
+
+        let header = (Array.from($('#quote-header-info', html)))[0];
+        try{
+          titles.push(header.children[2].children[0].children[0].children[0].children[0].data);
+        }catch(err){
+          titles = [];
+          titles.push("I couldn't find any stocks named: " + stock);
+        }
+
         resolve({links, titles});
       })
       .catch(function(err) {

@@ -2,8 +2,11 @@ const socket = io();
 const redditBtn = document.getElementById('reddit-btn');
 const drudgeBtn = document.getElementById('drudge-btn');
 const zeroBtn = document.getElementById('zero-btn');
+const stockBtn = document.getElementById('stock-btn');
 const forexBtn = document.getElementById('forex-btn');
 const scrapeResults = document.getElementById('scrape-results');
+
+const stockInput = document.getElementById('stock-input');
 
 var fetching = false;
 
@@ -54,10 +57,21 @@ forexBtn.addEventListener('click', (e)=>{
   }
 });
 
+stockBtn.addEventListener('click', (e)=>{
+  if(!fetching){
+    sendLoadingMsg();
+    let stock = stockInput.value;
+    socket.emit('scrapeStock', {stock});
+    fetching = true;  
+  }else{
+    alert("I'm already fetching something!")
+  }
+});
+
 socket.on('scrapeRes', ({res})=>{
   let {links, titles} = res;
 
-  for(var i = 0;i < links.length; i++){
+  for(var i = 0;i < titles.length; i++){
     let div = document.createElement('div');
     div.setAttribute('class', 'link');
     let a = document.createElement('a');
