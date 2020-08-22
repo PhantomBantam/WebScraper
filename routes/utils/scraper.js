@@ -31,6 +31,29 @@ const scraper = {
     }
   },
 
+  async getQuote(){
+    try{
+      let {page, browser} = await launchPuppeteer();
+      let html = await page.goto("https://www.brainyquote.com/quote_of_the_day").then(function() {
+        return page.content();
+      });
+
+      let quote = '';
+
+      let infoElem = $('.qotd-q-cntr', html)[0].children[1].children[1].children[1].children[3].children[1];
+
+      quote+=(infoElem.children[1].children[0].data);
+      quote+=" - ";
+      quote+=((infoElem.children[3].children[1].children[0].data));
+      
+      browser.close();
+      return(quote);  
+    }catch(err){
+      console.log(err);
+      return(err);
+    }
+  },
+
   async getDrudge(){
     try{
       let {page, browser} = await launchPuppeteer();

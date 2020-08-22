@@ -5,6 +5,7 @@ const zeroBtn = document.getElementById('zero-btn');
 const stockBtn = document.getElementById('stock-btn');
 const forexBtn = document.getElementById('forex-btn');
 const scrapeResults = document.getElementById('scrape-results');
+const quoteElem = document.getElementById('quote');
 
 const stockInput = document.getElementById('stock-input');
 
@@ -83,4 +84,8 @@ socket.on('scrapeRes', ({res})=>{
   }
 
   fetching = false;
+})
+
+socket.on('quote', (data)=>{
+  quoteElem.innerHTML = (data);
 })
