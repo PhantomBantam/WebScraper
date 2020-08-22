@@ -5,7 +5,7 @@ const puppeteer = require('puppeteer');
 
 function launchPuppeteer(){
   return puppeteer
-  .launch({args: ['--no-sandbox', '--disable-setuid-sandbox']})
+  .launch({args: ['--no-sandbox', '--disable-setuid-sandbox'], ignoreDefaultArgs: ['--disable-extensions']})
   .then(function(browser) {
     console.log('creating page...');
     return browser.newPage();
