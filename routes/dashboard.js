@@ -39,8 +39,8 @@ socketio.on('connection', async socket=>{
   });
 
   socket.on('scrapeStock', async ({stock})=>{
-    let data = getStocks(stock);
-
+    let data = await getStocks(stock);
+    
     socket.emit('scrapeRes', {res:data});
   });
 

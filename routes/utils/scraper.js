@@ -4,7 +4,7 @@ const $ = require('cheerio');
 const puppeteer = require('puppeteer');
 
 async function launchPuppeteer(){
-
+  console.log('launching puppeteer');
   const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox'], ignoreDefaultArgs: ['--disable-extensions']});
   const page = await browser.newPage();
   return {page, browser};
@@ -33,9 +33,10 @@ const scraper = {
 
   async getDrudge(){
     try{
-      let page = await launchPuppeteer().goto("https://www.drudgereport.com");
-      let html = await page.content();
-    
+      let {page, browser} = await launchPuppeteer();
+      let html = await page.goto("https://www.drudgereport.com").then(function() {
+        return page.content();
+      });
       let links = [];
       let titles = [];
         
@@ -51,6 +52,7 @@ const scraper = {
           links.push(elem.attribs.href);
         }
       }
+      browser.close();
       return({links, titles});  
     }catch(err){
       return(err);
@@ -59,10 +61,12 @@ const scraper = {
 
   async getZero(){
     try{
-      let page = await launchPuppeteer().goto("https://www.zerohedge.com/");
-
-      let html = await page.content();
       
+      let {page, browser} = await launchPuppeteer();
+      let html = await page.goto("https://www.zerohedge.com").then(function() {
+        return page.content();
+      });
+
       let links = [];
       let titles = [];
         
@@ -72,6 +76,8 @@ const scraper = {
           links.push("https://www.zerohedge.com" + elem.attribs.about);
         }
       }
+      browser.close();
+
       return({links, titles});  
     }catch(err){
       return(err);
@@ -80,9 +86,10 @@ const scraper = {
 
   async getForex(){
     try{
-      let page = await launchPuppeteer().goto("https://www.forexlive.com/");
-
-      let html = await page.content();
+      let {page, browser} = await launchPuppeteer();
+      let html = await page.goto("https://www.forexlive.com/").then(function() {
+        return page.content();
+      });
       
       let links = [];
       let titles = [];
@@ -93,6 +100,7 @@ const scraper = {
           titles.push(elem.children[1].children[3].children[1].children[1].children[0].data);
         }
       }
+      browser.close();
       return({links, titles});  
 
     }catch(err){
@@ -103,13 +111,13 @@ const scraper = {
 
   async getStocks(stock){
     try{
-      let page = await launchPuppeteer().goto("https://finance.yahoo.com/quote/" + stock);
+      let {page, browser} = await launchPuppeteer();
+      let html = await page.goto("https://finance.yahoo.com/quote/" + stock).then(function() {
+        return page.content();
+      });
 
-      let html = await page.content();
-      
       let links = [];
       let titles = [];
-
       let header = (Array.from($('#quote-header-info', html)))[0];
       try{
         titles.push(header.children[2].children[0].children[0].children[0].children[0].data);
@@ -117,6 +125,7 @@ const scraper = {
         titles = [];
         titles.push("I couldn't find any stocks named: " + stock);
       }
+      browser.close()
       return({links, titles});  
     }catch(err){
       return(err);
