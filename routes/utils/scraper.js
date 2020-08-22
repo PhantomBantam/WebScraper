@@ -3,164 +3,125 @@ const rp = require('request-promise');
 const $ = require('cheerio');
 const puppeteer = require('puppeteer');
 
-function launchPuppeteer(){
-  return puppeteer
-  .launch({args: ['--no-sandbox', '--disable-setuid-sandbox'], ignoreDefaultArgs: ['--disable-extensions']})
-  .then(function(browser) {
-    console.log('creating page...');
-    return browser.newPage();
-  })
+async function launchPuppeteer(){
 
+  const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox'], ignoreDefaultArgs: ['--disable-extensions']});
+  const page = await browser.newPage();
+  return {page, browser};
 }
 const scraper = {
-  getReddit(){
-    return new Promise((resolve, reject)=>{
-      launchPuppeteer()
-      .then(function(page) {        
-        return page.goto("https://www.reddit.com").then(function() {
-          return page.content();
-        });
-      })
-      .then(function(html) {
-        let links = [];
-        let titles = [];
-        Array.from(($('a[data-click-id="body"]', html))).forEach(elem=>{
-          links.push("https://www.reddit.com"+elem.attribs.href);
-          titles.push(elem.children[0].children[0].children[0].data);
-        })
-        resolve({links, titles});
-      })
-      .catch(function(err) {
-        reject(err);
-      });    
-    })
+  async getReddit(){
+    try{
+      let {page, browser} = await launchPuppeteer();
+      let html = await page.goto("https://www.reddit.com").then(function() {
+        return page.content();
+      });
+      let links = [];
+      let titles = [];
+      
+      for(let elem of Array.from(($('a[data-click-id="body"]', html)))){
+        links.push("https://www.reddit.com"+elem.attribs.href);
+        titles.push(elem.children[0].children[0].children[0].data);
+      }
+      browser.close();
+      return({links, titles});  
+    }catch(err){
+      console.log(err);
+      return(err);
+    }
   },
 
-  getDrudge(){
-    return new Promise((resolve, reject)=>{
-      launchPuppeteer()
-      .then(function(page) {        
-        return page.goto("https://www.drudgereport.com").then(function() {
-          return page.content();
-        });
-      })
-      .then(function(html) {
-        let links = [];
-        let titles = [];
-        let counter = 0;
+  async getDrudge(){
+    try{
+      let page = await launchPuppeteer().goto("https://www.drudgereport.com");
+      let html = await page.content();
+    
+      let links = [];
+      let titles = [];
         
-        for(let elem of Array.from(($('a', html)))){
+      for(let elem of Array.from(($('a', html)))){
 
-          if(elem.children[0].data){
-            if(elem.children[0].data.split(' ').length>3){
-              titles.push(elem.children[0].data);
-              links.push(elem.attribs.href);
-            }
-          }else if(elem.children[0].children[0]){
-            // if(counter==0){
-            //   titles.push(elem.children[0].children[0].data);
-            //   counter++;
-            // }else{
-            //   titles[1]+=(elem.children[0].children[0].data);
-            // }
-            titles.push(elem.children[0].children[0].data);
+        if(elem.children[0].data){
+          if(elem.children[0].data.split(' ').length>3){
+            titles.push(elem.children[0].data);
             links.push(elem.attribs.href);
           }
+        }else if(elem.children[0].children[0]){
+          titles.push(elem.children[0].children[0].data);
+          links.push(elem.attribs.href);
         }
-        resolve({links, titles});
-      })
-      .catch(function(err) {
-        reject(err);
-      });    
-    })
+      }
+      return({links, titles});  
+    }catch(err){
+      return(err);
+    }
   },
 
-  getZero(){
-    return new Promise((resolve, reject)=>{
-      launchPuppeteer()
-      .then(function(page) {        
-        return page.goto("https://www.zerohedge.com/").then(function() {
-          return page.content();
-        });
-      })
-      .then(function(html) {
-        let links = [];
-        let titles = [];
-        let counter = 0;
+  async getZero(){
+    try{
+      let page = await launchPuppeteer().goto("https://www.zerohedge.com/");
+
+      let html = await page.content();
+      
+      let links = [];
+      let titles = [];
         
-        for(let elem of Array.from($('.view-content .views-row article', html))){
-          if(elem.children[3]){
-            titles.push(elem.children[3].attribs.content);
-            links.push("https://www.zerohedge.com" + elem.attribs.about);
-          }
-          
-          
+      for(let elem of Array.from($('.view-content .views-row article', html))){
+        if(elem.children[3]){
+          titles.push(elem.children[3].attribs.content);
+          links.push("https://www.zerohedge.com" + elem.attribs.about);
         }
-        
-        resolve({links, titles});
-      })
-      .catch(function(err) {
-        reject(err);
-      });    
-    })
+      }
+      return({links, titles});  
+    }catch(err){
+      return(err);
+    }
   },
 
-  getForex(){
-    return new Promise((resolve, reject)=>{
-      launchPuppeteer()
-      .then(function(page) {        
-        return page.goto("https://www.forexlive.com/").then(function() {
-          return page.content();
-        });
-      })
-      .then(function(html) {
-        let links = [];
-        let titles = [];
-                
-        for(let elem of Array.from($('article', html))){
-          if(elem.children[1].children[3].children[1].children[1].children[0]){
-            links.push(elem.children[1].children[3].children[1].children[1].attribs.href);
-            titles.push(elem.children[1].children[3].children[1].children[1].children[0].data);
-          }
+  async getForex(){
+    try{
+      let page = await launchPuppeteer().goto("https://www.forexlive.com/");
+
+      let html = await page.content();
+      
+      let links = [];
+      let titles = [];
+
+      for(let elem of Array.from($('article', html))){
+        if(elem.children[1].children[3].children[1].children[1].children[0]){
+          links.push(elem.children[1].children[3].children[1].children[1].attribs.href);
+          titles.push(elem.children[1].children[3].children[1].children[1].children[0].data);
         }
-        
-        resolve({links, titles});
-      })
-      .catch(function(err) {
-        reject(err);
-      });    
-    })
+      }
+      return({links, titles});  
+
+    }catch(err){
+      return(err);
+    }
+
   },
 
-  getStocks(stock){
-    return new Promise((resolve, reject)=>{
-      launchPuppeteer()
-      .then(function(page) {        
-        return page.goto("https://finance.yahoo.com/quote/" + stock).then(function() {
-          return page.content();
-        });
-      })
-      .then(function(html) {
-        let links = [];
-        let titles = [];
+  async getStocks(stock){
+    try{
+      let page = await launchPuppeteer().goto("https://finance.yahoo.com/quote/" + stock);
 
+      let html = await page.content();
+      
+      let links = [];
+      let titles = [];
 
-        let header = (Array.from($('#quote-header-info', html)))[0];
-        try{
-          titles.push(header.children[2].children[0].children[0].children[0].children[0].data);
-        }catch(err){
-          titles = [];
-          titles.push("I couldn't find any stocks named: " + stock);
-        }
-
-        resolve({links, titles});
-      })
-      .catch(function(err) {
-        reject(err);
-      });    
-    })
+      let header = (Array.from($('#quote-header-info', html)))[0];
+      try{
+        titles.push(header.children[2].children[0].children[0].children[0].children[0].data);
+      }catch(err){
+        titles = [];
+        titles.push("I couldn't find any stocks named: " + stock);
+      }
+      return({links, titles});  
+    }catch(err){
+      return(err);
+    }
   }    
-
 }
 
 module.exports = scraper;

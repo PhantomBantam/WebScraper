@@ -13,7 +13,6 @@ router.get('/loading', (req, res)=>{
   res.send('loading...');
 });
 
-
 socketio.on('connection', async socket=>{
   socket.on('scrapeReddit', async ()=>{
     let data = await getReddit();
@@ -40,7 +39,7 @@ socketio.on('connection', async socket=>{
   });
 
   socket.on('scrapeStock', async ({stock})=>{
-    let data = await getStocks(stock);
+    let data = getStocks(stock);
 
     socket.emit('scrapeRes', {res:data});
   });
