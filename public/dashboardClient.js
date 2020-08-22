@@ -9,7 +9,7 @@ const quoteElem = document.getElementById('quote');
 
 const stockInput = document.getElementById('stock-input');
 
-var fetching = false;
+var fetching = true;
 
 function sendLoadingMsg(){
   scrapeResults.innerHTML = '';
@@ -88,4 +88,5 @@ socket.on('scrapeRes', ({res})=>{
 
 socket.on('quote', (data)=>{
   quoteElem.innerHTML = (data);
-})
+  fetching = false;
+});
